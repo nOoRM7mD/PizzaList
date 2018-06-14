@@ -3,4 +3,7 @@
     <string name="pleasewait">Please Wait</string>
     <string name="alert_title">ERROR !</string>
     <string name="alert_message">Oh, network unavailable!</string>
+    <string name="time_update">Updated</string>
+    <string name="time_pattern">hh:mm a</string>
+    <string name="last_updated_time">Last Updated</string>
 </resources>

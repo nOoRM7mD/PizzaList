@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.lenovo.pizzalist.MyApp;
 import com.example.lenovo.pizzalist.R;
 import com.example.lenovo.pizzalist.adapter.ProductAdapter;
 import com.example.lenovo.pizzalist.models.Product;
@@ -32,9 +33,8 @@ import java.util.List;
 
 import static com.example.lenovo.pizzalist.utilties.Network.isNetworkAvailable;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements InternetConnectionListener {
 
-    public static final String BASE_URL = "https://api.androidhive.info/";
     private RecyclerView recyclerView;
     private ProgressDialog progressDialog;
     private TextView updatedTime;
@@ -49,15 +49,15 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         iControllerListener = new Presenter(this);
-        updatedTime = (TextView) findViewById(R.id.textView);
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        updatedTime = findViewById(R.id.textView);
+        recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(com.example.lenovo.pizzalist.view.MainActivity.this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(mLinearLayoutManager);
 
         mAdapter = new ProductAdapter(new ArrayList<Product>(), getApplicationContext());
         recyclerView.setAdapter(mAdapter);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout)
+        mSwipeRefreshLayout =
                 findViewById(R.id.refresh_layout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent,
                 android.R.color.holo_green_light,
@@ -67,35 +67,30 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onRefresh() {
 
-
                 if (isNetworkAvailable(getApplicationContext())) {
-                    iControllerListener.getDataFromURL(getApplicationContext(), "");
+                    iControllerListener.getDataFromURL(getApplicationContext());
                     Date d = new Date();
-                    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+                    SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.time_pattern));
                     currentDateTimeString = sdf.format(d);
-                    updatedTime.setText("Updated " + currentDateTimeString);
+                    updatedTime.setText(getString(R.string.time_update) + currentDateTimeString);
 
                     SharedPreferences prefs = getSharedPreferences("TIME", MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("time", currentDateTimeString);
                     editor.commit();
                 } else {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    SharedPreferences prefs1 = getSharedPreferences("TIME", MODE_PRIVATE);
-                    String defaultValue = "defaultName";
-                    String time = prefs1.getString("time", defaultValue);
-                    updatedTime.setText("Last Updated " + time);
-                    showSnackbar("Oh, network unavailable!", findViewById(R.id.container));
-
+                    internetUnavailable();
                 }
             }
         });
-        iControllerListener.getDataFromURL(getApplicationContext(),  "");
+        iControllerListener.getDataFromURL(getApplicationContext());
+        ((MyApp) getApplication()).setConnectionListener(this);
+    }
 
-        if (!isNetworkAvailable(getApplicationContext())) {
-            showSnackbar("Oh, network unavailable!", findViewById(R.id.container));
-        }
-
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((MyApp) getApplication()).removeConnectionListener();
     }
 
     @Override
@@ -154,5 +149,22 @@ public class MainActivity extends BaseActivity {
         TextView tv = view.findViewById(android.support.design.R.id.snackbar_text);
         tv.setTextColor(Color.WHITE);
         snackbar.show();
+    }
+
+    @Override
+    public void internetUnavailable() {
+        mSwipeRefreshLayout.setRefreshing(false);
+        SharedPreferences prefs1 = getSharedPreferences("TIME", MODE_PRIVATE);
+        String defaultValue = "0:00";
+        String time = prefs1.getString("time", defaultValue);
+        updatedTime.setText(getString(R.string.last_updated_time) + time);
+        showSnackbar("Oh, network unavailable!", findViewById(R.id.container));
+
+    }
+
+    @Override
+    public void cacheUnavailable() {
+        showSnackbar("No Content Available", findViewById(R.id.container));
+        progressDialog.dismiss();
     }
 }
