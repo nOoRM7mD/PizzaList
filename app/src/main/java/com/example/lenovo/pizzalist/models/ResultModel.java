@@ -10,11 +10,11 @@ import java.util.List;
  */
 
 
-    @Root(name = "menu", strict = false)
-    public class ResultModel {
+@Root(name = "menu", strict = false)
+public class ResultModel {
 
-        @ElementList(inline = true)
-        public List<Product> products;
+    @ElementList(inline = true)
+    public List<Product> products;
 
     public List<Product> getProducts() {
         return products;

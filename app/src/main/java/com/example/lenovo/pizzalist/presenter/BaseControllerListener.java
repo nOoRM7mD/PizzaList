@@ -4,6 +4,6 @@ import android.content.Context;
 
 public interface BaseControllerListener {
     //request data from server
-    void getDataFromURL(Context context, String url);
+    void getDataFromURL(Context context);
 
 }

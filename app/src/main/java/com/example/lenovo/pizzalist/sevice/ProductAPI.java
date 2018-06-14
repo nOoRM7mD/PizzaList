@@ -6,13 +6,9 @@ import com.example.lenovo.pizzalist.models.ResultModel;
 import retrofit2.Call;
 import retrofit2.http.GET;
 
-/**
- * Created by Kaushal28 on 5/5/2017.
- */
-
 public interface ProductAPI {
+    String BASE_URL = "https://api.androidhive.info/";
 
     @GET("/pizza/?format=xml")
     Call<ResultModel> getProducts();
-
 }

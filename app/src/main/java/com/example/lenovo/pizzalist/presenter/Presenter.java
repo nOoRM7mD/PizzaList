@@ -13,8 +13,8 @@ import java.util.List;
  */
 
 public class Presenter extends BasePresenter implements OnGetDataListener {
-    ModelController controler;
-    BasePresenterListener presenterListener;
+    private ModelController controler;
+    private BasePresenterListener presenterListener;
 
     public Presenter(BasePresenterListener listener) {
         super(listener);
@@ -23,9 +23,9 @@ public class Presenter extends BasePresenter implements OnGetDataListener {
     }
 
     @Override
-    public void getDataFromURL(Context context, String url) {
+    public void getDataFromURL(Context context) {
         presenterListener.showProgress();
-        controler.getDataFromRetrofit(context, url);
+        controler.getDataFromRetrofit(context);
     }
 
     @Override
