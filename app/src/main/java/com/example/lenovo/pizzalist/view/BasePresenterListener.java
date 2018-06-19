@@ -11,8 +11,8 @@ public interface BasePresenterListener {
 
     void hideProgress();
 
+    void onSuccess(String message, List<Product> list);
 
-        void onSuccess(String message, List<Product> list);
+    void onFailure(String message);
 
-        void onFailure(String message);
 }
