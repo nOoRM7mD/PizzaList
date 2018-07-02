@@ -1,6 +1,7 @@
 package com.example.lenovo.pizzalist.presenter;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.lenovo.pizzalist.models.ModelController;
 import com.example.lenovo.pizzalist.models.Product;
@@ -36,6 +37,6 @@ public class Presenter extends BasePresenter implements OnGetDataListener {
 
     @Override
     public void onFailureRequest(String message) {
-
+        Log.v("FailureResponse","operation failed");
     }
 }

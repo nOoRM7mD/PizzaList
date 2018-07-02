@@ -50,19 +50,16 @@ public class ModelController extends BaseController {
                             }
                             Log.d("FetchedData", "Refreshed" + allProduct);
                             onGetDataListener.onSuccessRequest("List Size: " + allProduct.size(), allProduct);
-                            Collections.sort(allProduct, new Comparator<Product>() {
-                                @Override
-                                public int compare(Product firstProduct, Product secondProduct) {
-
-                                    return firstProduct.getName().compareTo(secondProduct.getName());
-                                }
-                            });
+                            Collections.sort(allProduct, (firstProduct,secondProduct) -> {
+                                        return firstProduct.getName().compareTo(secondProduct.getName());
+                                    }
+                            );
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ResultModel> call, Throwable t) {
-                        System.out.println(t.getLocalizedMessage());
+                        Log.d("DataFailure",t.getLocalizedMessage());
                     }
                 });
     }

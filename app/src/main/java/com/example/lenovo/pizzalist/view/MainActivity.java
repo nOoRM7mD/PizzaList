@@ -14,8 +14,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.lenovo.pizzalist.MyApp;
 import com.example.lenovo.pizzalist.R;
@@ -63,24 +64,20 @@ public class MainActivity extends BaseActivity implements InternetConnectionList
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
+        mSwipeRefreshLayout.setOnRefreshListener(() -> {
+            if (isNetworkAvailable(getApplicationContext())) {
+                iControllerListener.getDataFromURL(getApplicationContext());
+                Date d = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.time_pattern));
+                currentDateTimeString = sdf.format(d);
+                updatedTime.setText(getString(R.string.time_update) + currentDateTimeString);
 
-                if (isNetworkAvailable(getApplicationContext())) {
-                    iControllerListener.getDataFromURL(getApplicationContext());
-                    Date d = new Date();
-                    SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.time_pattern));
-                    currentDateTimeString = sdf.format(d);
-                    updatedTime.setText(getString(R.string.time_update) + currentDateTimeString);
-
-                    SharedPreferences prefs = getSharedPreferences("TIME", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("time", currentDateTimeString);
-                    editor.commit();
-                } else {
-                    internetUnavailable();
-                }
+                SharedPreferences prefs = getSharedPreferences("TIME", MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("time", currentDateTimeString);
+                editor.commit();
+            } else {
+                internetUnavailable();
             }
         });
         iControllerListener.getDataFromURL(getApplicationContext());
@@ -105,12 +102,9 @@ public class MainActivity extends BaseActivity implements InternetConnectionList
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getString(R.string.pleasewait));
             progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    finish();
-                }
+            //OnCancelListener
+            progressDialog.setOnCancelListener(dialogInterface -> {
+                finish();
             });
         }
         progressDialog.show();
@@ -137,13 +131,10 @@ public class MainActivity extends BaseActivity implements InternetConnectionList
 
     protected void showSnackbar(String message, @NonNull View parentView) {
         Snackbar snackbar = Snackbar.make(parentView, message, Snackbar.LENGTH_LONG)
-                .setAction("Retry", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = getIntent();
-                        finish();
-                        startActivity(intent);
-                    }
+                .setAction("Retry", v -> {
+                    Intent intent = getIntent();
+                    finish();
+                    startActivity(intent);
                 });
         View view = snackbar.getView();
         TextView tv = view.findViewById(android.support.design.R.id.snackbar_text);
@@ -154,6 +145,7 @@ public class MainActivity extends BaseActivity implements InternetConnectionList
     @Override
     public void internetUnavailable() {
         mSwipeRefreshLayout.setRefreshing(false);
+        progressDialog.dismiss();
         SharedPreferences prefs1 = getSharedPreferences("TIME", MODE_PRIVATE);
         String defaultValue = "0:00";
         String time = prefs1.getString("time", defaultValue);
